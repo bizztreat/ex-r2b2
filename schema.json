@@ -1,0 +1,63 @@
+{
+    "type": "object",
+    "title": "R2B2 Configuration",
+    "required": [
+        "#pass",
+        "user",
+        "type",
+        "server",
+        "datasources"
+    ],
+    "properties": {
+        "date_type": {
+            "type": "string",
+            "title": "Date type",
+            "description": "",
+            "propertyOrder": 1,
+            "enum": [
+                "fixed",
+                "interval",
+                "backfill"
+            ]
+        },
+        "date_interval": {
+            "type": "number",
+            "title": "Date interval",
+            "default": 30,
+            "description": ""
+        },
+        "include_today": {
+            "type": "boolean",
+            "title": "Include today",
+            "default": true,
+            "description": "Whether to download today's data (true) or end by yesterday's midnight (false)"
+        },
+        "credentials": {
+            "type": "object",
+            "title": "R2B2 Credentials",
+            "properties": {
+                "client_id": {
+                    "title": "Client ID",
+                    "type": "string"
+                }
+            }
+        },
+        "dimensions": {
+            "type": "array",
+            "title": "Dimensions",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "day",
+                    "website",
+                    "placement"
+                ]
+            },
+            "default": [
+                "day",
+                "website",
+                "placement"
+            ]
+        }
+    }
+}

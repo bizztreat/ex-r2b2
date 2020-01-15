@@ -1,0 +1,17 @@
+{
+    "credentials": {
+        "client_id": "<client-id>",
+        "client_secret": "<client-secret>"
+    },
+    "date_type": "interval|fixed|backfill",
+    "date_interval": 20,
+    "include_today": false,
+    "from": "2019-01-05",
+    "to": "2019-12-31",
+    "dimensions": [
+        "day",
+        "website",
+        "placement"
+    ],
+    "displayCustomName": true
+}
