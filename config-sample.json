@@ -1,17 +1,29 @@
 {
     "credentials": {
-        "client_id": "<client-id>",
-        "client_secret": "<client-secret>"
+        "client_id": "<client_id",
+        "client_secret":"<client_secret>"
     },
-    "date_type": "interval|fixed|backfill",
+    "date_type": "fixed|interval|backfill",
     "date_interval": 20,
-    "include_today": false,
+    "include_today": true,
     "from": "2019-01-05",
     "to": "2019-12-31",
-    "dimensions": [
+    "endpoints": [
+        "stats",
+        "private-deals"
+    ],
+    "dimensions_stats": [
         "day",
         "website",
         "placement"
+    ],
+    "dimensions_private-deals": [
+        "day", 
+        "website", 
+        "deal", 
+        "placement", 
+        "advertiser", 
+        "buyer"
     ],
     "displayCustomName": true
 }

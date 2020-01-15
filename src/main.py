@@ -68,6 +68,7 @@ def main():
         if not conf["include_today"]:
             datetime_to = datetime_to.replace(hour=0, minute=0, second=0, microsecond=0)
         datetime_from = datetime_to - timedelta(days=conf["date_interval"])
+        datetime_from = datetime_from.replace(hour=0, minute=0, second=0, microsecond=0)
         date_from = datetime_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         date_to = datetime_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         extract(date_from, date_to, logger, conf, args)
@@ -115,7 +116,7 @@ def extract(date_from, date_to, logger, conf, args):
     stats_conf = {
         "from": date_from,
         "to": date_to,
-        "dimensions": conf["dimensions"],
+        "dimensions": conf["dimensions_stats"],
         "displayCustomName": conf["displayCustomName"]
     }
 
@@ -156,7 +157,7 @@ def extract(date_from, date_to, logger, conf, args):
     output_path = args.outpath
     os.makedirs(output_path, exist_ok=True)
 
-    output_fname = os.path.join(output_path, "output.csv")
+    output_fname = os.path.join(output_path, "stats.csv")
 
     logger.info("Exporting stats to '%s'", output_fname)
 

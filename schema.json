@@ -2,62 +2,109 @@
     "type": "object",
     "title": "R2B2 Configuration",
     "required": [
-        "#pass",
-        "user",
-        "type",
-        "server",
-        "datasources"
+        "date_type",
+        "endpoints",
+        "credentials"
     ],
     "properties": {
         "date_type": {
-            "type": "string",
-            "title": "Date type",
-            "description": "",
-            "propertyOrder": 1,
-            "enum": [
-                "fixed",
-                "interval",
-                "backfill"
-            ]
-        },
-        "date_interval": {
-            "type": "number",
-            "title": "Date interval",
-            "default": 30,
-            "description": ""
-        },
-        "include_today": {
-            "type": "boolean",
-            "title": "Include today",
-            "default": true,
-            "description": "Whether to download today's data (true) or end by yesterday's midnight (false)"
-        },
-        "credentials": {
+          "type": "array",
+          "title": "Date type",
+          "minItems": 1,
+          "description": "Select a date type.",
+          "items": {
             "type": "object",
-            "title": "R2B2 Credentials",
-            "properties": {
-                "client_id": {
-                    "title": "Client ID",
-                    "type": "string"
+            "anyOf": [
+              {
+                "title": "fixed",
+                "description": "Fixed period from start date to end date (including). Date format: YYYY-MM_DD.",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "title": "Start date",
+                    "default": "2020-01-12"
+                   },
+                  "to": {
+                    "type": "string",
+                    "title": "End date",
+                    "default": "2020-01-13"
+                   }
+                } 
+              },
+              {
+                "title": "interval",
+                "description": "Last days till now (including today).",
+                "properties": {
+                  "date_interval2": {
+                    "type": "number",
+                    "title": "Date interval",
+                    "default": 30                    
+                   },
+                  "include_today": {
+                    "type": "boolean",
+                    "title": "Include today",
+                    "default": true,
+                    "description": "Whether to download today's data or end by yesterday's midnight"
+                  }
+                } 
+              },
+              {
+                "title": "backfill",
+                "description": "Full period.",
+                "properties": {
+                  "include_today": {
+                    "type": "boolean",
+                    "title": "Include today",
+                    "default": true,
+                    "description": "Whether to download today's data or end by yesterday's midnight"
+                  }
+                } 
+              }
+            ]
+          }
+        },
+        "endpoints": {
+            "type": "array",
+            "minItems": 1,          
+            "title": "Endpoints",
+            "description": "Select dimesions to download for required endpoints.",
+            "propertyOrder": 1,
+            "items": {
+                "type": "object",
+                "properties":{
+                  "stats": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["day", "website", "placement"],
+                      "default": "website"
+                    }
+                  },
+                  "private-deals": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["day", "website", "placement", "deal", "advertiser", "buyer"],
+                      "default": "website"
+                    }
+                  }                  
                 }
             }
         },
-        "dimensions": {
-            "type": "array",
-            "title": "Dimensions",
-            "items": {
-                "type": "string",
-                "enum": [
-                    "day",
-                    "website",
-                    "placement"
-                ]
-            },
-            "default": [
-                "day",
-                "website",
-                "placement"
-            ]
-        }
+        "credentials": {
+          "type": "object",
+          "title": "R2B2 Credentials",
+          "propertyOrder": 2,
+          "properties": {
+              "client_id": {
+                  "title": "Client ID",
+                  "type": "string"
+              },
+              "#client_secret": {
+                  "title": "Client Secret",
+                  "type": "string"
+              }
+          }
+      }
     }
 }
