@@ -164,49 +164,51 @@ def extract(date_from, date_to, logger, conf, args, endpoint):
         "POST", url, data=json.dumps(stats_conf), headers=headers)
 
     try:
-        stats = response.json()
+        resp = response.json()
     except json.decoder.JSONDecodeError as err:
         logger.critical("Response from server was invalid JSON (%s)", err)
         logger.critical(response.text)
         sys.exit(255)
 
-    if ("status" or "payload") not in stats.keys():
-        logger.error("Unexpected response \n keys: %s", stats.keys())
+    if ("status" or "payload") not in resp.keys():
+        logger.error("Unexpected response \n keys: %s", resp.keys())
         sys.exit(255)
 
-    if not stats["status"] == "ok":
-        logger.error("Unexpected response status: %s", stats["status"])
+    if not resp["status"] == "ok":
+        logger.error("Unexpected response status: %s", resp["status"])
         sys.exit(255)
 
     # main data
-    data = stats["payload"]
+    data = resp["payload"]
     if not data:
-        raise Exception("No data found in......")
+        logger.info("No %s data found, nothing to export", endpoint)
+
+    else:
 
     # add corresponding date and time from config
-    for row in data:
-        row["date_from"] = stats_conf["from"]
-        row["date_to"] = stats_conf["to"]
+        for row in data:
+            row["date_from"] = stats_conf["from"]
+            row["date_to"] = stats_conf["to"]
 
     # Save output
-    output_path = args.outpath
-    os.makedirs(output_path, exist_ok=True)
+        output_path = args.outpath
+        os.makedirs(output_path, exist_ok=True)
 
-    output_fname = os.path.join(output_path, "{}.csv".format(endpoint))
+        output_fname = os.path.join(output_path, "{}.csv".format(endpoint))
 
-    logger.info("Exporting %s to '%s'", endpoint, output_fname)
+        logger.info("Exporting %s to '%s'", endpoint, output_fname)
 
-    if os.path.exists(output_fname):
-        appending = True
-    else:
-        appending = False
+        if os.path.exists(output_fname):
+            appending = True
+        else:
+            appending = False
 
-    with open(output_fname, "a" if appending else "w", encoding="utf-8") as out_file:
-        writer = csv.DictWriter(
-            out_file, fieldnames=data[0].keys(), dialect=csv.unix_dialect)
-        if not appending:
-            writer.writeheader()
-        writer.writerows(data)
+        with open(output_fname, "a" if appending else "w", encoding="utf-8") as out_file:
+            writer = csv.DictWriter(
+                out_file, fieldnames=data[0].keys(), dialect=csv.unix_dialect)
+            if not appending:
+                writer.writeheader()
+            writer.writerows(data)
 
 if __name__ == "__main__":
     main()
