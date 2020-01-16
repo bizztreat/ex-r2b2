@@ -8,7 +8,8 @@
         "to",
         "include_today",
         "endpoints",
-        "credentials"
+        "credentials",
+        "display_custom_name"
     ],
     "properties": {
         "date_type": {
