@@ -7,5 +7,5 @@ RUN python -u -m pip install -r /code/requirements.txt
 COPY ./src/ /code/
 WORKDIR /data/
 
-CMD ["python", "-u", "/code/main.py", "--config /data/config.json", "--outpath /data/out/tables", "--loglevel INFO"]
+CMD ["python", "-u", "/code/main.py", "--config", "/data/config.json", "--outpath", "/data/out/tables", "--loglevel", "INFO"]
 
