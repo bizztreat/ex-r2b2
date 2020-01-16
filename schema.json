@@ -71,14 +71,20 @@
             "type": "object",
             "title": "R2B2 Credentials",
             "propertyOrder": 8,
+            "required": [
+                "client_id",
+                "#client_secret"
+            ],
             "properties": {
                 "client_id": {
                     "title": "Client ID",
-                    "type": "string"
+                    "type": "string",
+                    "propertyOrder": 1
                 },
                 "#client_secret": {
                     "title": "Client Secret",
-                    "type": "string"
+                    "type": "string",
+                    "propertyOrder": 2
                 }
             }          
         }
