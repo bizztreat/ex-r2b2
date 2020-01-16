@@ -21,6 +21,32 @@ from argparse import ArgumentParser
 from datetime import datetime, timedelta
 import requests
 
+ENDPOINTS = {
+    "stats": "https://aym.r2b2.cz/api/v1/publisher/stats",
+    "private-deals": "https://aym.r2b2.cz/api/v1/publisher/stats/private-deals"
+}
+
+SCOPES = {
+    "stats": "aym-api",
+    "private-deals": "aym-api-deals"
+}
+
+DIMENSIONS = {
+    "stats": [
+        "day",
+        "website",
+        "placement"
+    ],
+    "private-deals":[
+        "day", 
+        "website", 
+        "deal", 
+        "placement", 
+        "advertiser", 
+        "buyer"
+    ]
+}
+
 def main():
     """Main function to run extraction
     """
@@ -58,10 +84,13 @@ def main():
             conf["from"],
             "%Y-%m-%d"
         )
-        datetime_to = datetime.strptime(conf["to"], "%Y-%m-%d")
+        datetime_to = datetime.strptime(conf["to"], "%Y-%m-%d") + timedelta(1)
         date_from = datetime_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         date_to = datetime_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        extract(date_from, date_to, logger, conf, args)
+        if "stats" in conf["endpoints"]:
+            extract(date_from, date_to, logger, conf, args, "stats")
+        if "private-deals" in conf["endpoints"]:
+            extract(date_from, date_to, logger, conf, args, "private-deals")
     ## interval
     elif conf["date_type"] == "interval":
         datetime_to = datetime.now()
@@ -71,20 +100,25 @@ def main():
         datetime_from = datetime_from.replace(hour=0, minute=0, second=0, microsecond=0)
         date_from = datetime_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         date_to = datetime_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        extract(date_from, date_to, logger, conf, args)
+        if "stats" in conf["endpoints"]:
+            extract(date_from, date_to, logger, conf, args, "stats")
+        if "private-deals" in conf["endpoints"]:
+            extract(date_from, date_to, logger, conf, args, "private-deals")
     ## backfill
     else:
         now = datetime.now()
-        if not conf["include_today"]:
-            now = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        now = now.replace(hour=0, minute=0, second=0, microsecond=0)
         days = [(now - timedelta(days=d)) for d in range(0, conf["date_interval"])]
         for datetime_to in days:
             datetime_from = datetime_to - timedelta(days=1)
             date_from = datetime_from.strftime("%Y-%m-%dT%H:%M:%S.000Z")
             date_to = datetime_to.strftime("%Y-%m-%dT%H:%M:%S.000Z")
-            extract(date_from, date_to, logger, conf, args)
+            if "stats" in conf["endpoints"]:
+                extract(date_from, date_to, logger, conf, args, "stats")
+            if "private-deals" in conf["endpoints"]:
+                extract(date_from, date_to, logger, conf, args, "private-deals")
 
-def extract(date_from, date_to, logger, conf, args):
+def extract(date_from, date_to, logger, conf, args, endpoint):
     logger.info(
         "Requested date in '%s' mode, downloading data from %s to %s",
         conf["date_type"],
@@ -95,8 +129,8 @@ def extract(date_from, date_to, logger, conf, args):
     # OAuth - get acces token
     url_oauth = "https://login.trackad.cz/api/oauth2/token"
 
-    payload = "grant_type=client_credentials&client_id={0}&client_secret={1}&scope=aym-api".format(
-        conf["credentials"]["client_id"], conf["credentials"]["client_secret"])
+    payload = "grant_type=client_credentials&client_id={0}&client_secret={1}&scope={2}".format(
+        conf["credentials"]["client_id"], conf["credentials"]["#client_secret"], SCOPES[endpoint])
 
     headers = {'content-type': 'application/x-www-form-urlencoded'}
 
@@ -112,21 +146,22 @@ def extract(date_from, date_to, logger, conf, args):
     token = response_data["access_token"]
 
     # Get stats
-    url_stats = "https://aym.r2b2.cz/api/v1/publisher/stats"
+    url = ENDPOINTS[endpoint]
     stats_conf = {
         "from": date_from,
         "to": date_to,
-        "dimensions": conf["dimensions_stats"],
-        "displayCustomName": conf["displayCustomName"]
+        "dimensions": DIMENSIONS[endpoint]
     }
-
+    if endpoint == "stats":
+        stats_conf["displayCustomName"] = conf["display_custom_name"]
+    
     headers = {
         'content-type': "application/json",
         'authorization': "Bearer {}".format(token)
     }
 
     response = requests.request(
-        "POST", url_stats, data=json.dumps(stats_conf), headers=headers)
+        "POST", url, data=json.dumps(stats_conf), headers=headers)
 
     try:
         stats = response.json()
@@ -157,9 +192,9 @@ def extract(date_from, date_to, logger, conf, args):
     output_path = args.outpath
     os.makedirs(output_path, exist_ok=True)
 
-    output_fname = os.path.join(output_path, "stats.csv")
+    output_fname = os.path.join(output_path, "{}.csv".format(endpoint))
 
-    logger.info("Exporting stats to '%s'", output_fname)
+    logger.info("Exporting %s to '%s'", endpoint, output_fname)
 
     if os.path.exists(output_fname):
         appending = True

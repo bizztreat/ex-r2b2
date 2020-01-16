@@ -1,29 +1,16 @@
 {
     "credentials": {
         "client_id": "<client_id",
-        "client_secret":"<client_secret>"
+        "#client_secret":"<client_secret>"
     },
     "date_type": "fixed|interval|backfill",
-    "date_interval": 20,
+    "date_interval": 30,
     "include_today": true,
-    "from": "2019-01-05",
-    "to": "2019-12-31",
+    "from": "2020-01-13",
+    "to": "2020-01-15",
     "endpoints": [
         "stats",
         "private-deals"
     ],
-    "dimensions_stats": [
-        "day",
-        "website",
-        "placement"
-    ],
-    "dimensions_private-deals": [
-        "day", 
-        "website", 
-        "deal", 
-        "placement", 
-        "advertiser", 
-        "buyer"
-    ],
-    "displayCustomName": true
+    "display_custom_name": false
 }

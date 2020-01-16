@@ -3,108 +3,84 @@
     "title": "R2B2 Configuration",
     "required": [
         "date_type",
+        "date_interval",
+        "from",
+        "to",
+        "include_today",
         "endpoints",
         "credentials"
     ],
     "properties": {
         "date_type": {
-          "type": "array",
-          "title": "Date type",
-          "minItems": 1,
-          "description": "Select a date type.",
-          "items": {
-            "type": "object",
-            "anyOf": [
-              {
-                "title": "fixed",
-                "description": "Fixed period from start date to end date (including). Date format: YYYY-MM_DD.",
-                "properties": {
-                  "from": {
-                    "type": "string",
-                    "title": "Start date",
-                    "default": "2020-01-12"
-                   },
-                  "to": {
-                    "type": "string",
-                    "title": "End date",
-                    "default": "2020-01-13"
-                   }
-                } 
-              },
-              {
-                "title": "interval",
-                "description": "Last days till now (including today).",
-                "properties": {
-                  "date_interval2": {
-                    "type": "number",
-                    "title": "Date interval",
-                    "default": 30                    
-                   },
-                  "include_today": {
-                    "type": "boolean",
-                    "title": "Include today",
-                    "default": true,
-                    "description": "Whether to download today's data or end by yesterday's midnight"
-                  }
-                } 
-              },
-              {
-                "title": "backfill",
-                "description": "Full period.",
-                "properties": {
-                  "include_today": {
-                    "type": "boolean",
-                    "title": "Include today",
-                    "default": true,
-                    "description": "Whether to download today's data or end by yesterday's midnight"
-                  }
-                } 
-              }
-            ]
-          }
+            "type": "string",
+            "title": "Date type",
+            "description": "Select 'fixed' for period specified in 'Date from' and 'Date to'. \nSelect 'interval' for number of days specified in 'Date interval'. \nSelect 'backfill' to download number of days specified in 'Date interval' on a daily basis. ",
+            "propertyOrder": 1,
+            "enum": [
+                "fixed",
+                "interval",
+                "backfill"
+            ],
+            "default": "fixed"
+        },
+        "from": {
+            "type": "string",
+            "title": "Date from",
+            "description": "Start date. Relevant for fixed date type. Date format: YYYY-MM-DD",
+            "propertyOrder": 2,
+            "default": "2020-01-13"
+        },
+        "to": {
+            "type": "string",
+            "title": "Date to",
+            "description": "End date. Relevant for fixed date type. Date format: YYYY-MM-DD",
+            "propertyOrder": 3,
+            "default": "2020-01-15"
+        },                 
+        "date_interval": {
+            "type": "number",
+            "title": "Date interval",
+            "default": 30,
+            "description": "Last days before today. Relevant for interval and backfill date types. (Today's data are not downloaded in case of backfill.)",
+            "propertyOrder": 4
+        },
+        "include_today": {
+            "type": "boolean",
+            "title": "Include today for interval date type.",
+            "default": true,
+            "description": "Whether to download today's data or end by yesterday's midnight. Relevant for interval date type.",
+            "propertyOrder": 5
         },
         "endpoints": {
-            "type": "array",
-            "minItems": 1,          
-            "title": "Endpoints",
-            "description": "Select dimesions to download for required endpoints.",
-            "propertyOrder": 1,
-            "items": {
-                "type": "object",
-                "properties":{
-                  "stats": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": ["day", "website", "placement"],
-                      "default": "website"
-                    }
-                  },
-                  "private-deals": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": ["day", "website", "placement", "deal", "advertiser", "buyer"],
-                      "default": "website"
-                    }
-                  }                  
-                }
+          "type": "array",
+          "propertyOrder": 6,
+          "items": {
+              "type": "string",
+              "enum": ["stats", "private-deals"],
+              "default": "stats"
             }
         },
+        "display_custom_name": {
+            "type": "boolean",
+            "title": "Display custom name for stats endpoint.",
+            "default": false,
+            "description": "Whether to download custom name or not. Relevant for stats endpoint.",
+            "propertyOrder": 7
+        },
         "credentials": {
-          "type": "object",
-          "title": "R2B2 Credentials",
-          "propertyOrder": 2,
-          "properties": {
-              "client_id": {
-                  "title": "Client ID",
-                  "type": "string"
-              },
-              "#client_secret": {
-                  "title": "Client Secret",
-                  "type": "string"
-              }
-          }
-      }
+            "type": "object",
+            "title": "R2B2 Credentials",
+            "propertyOrder": 8,
+            "properties": {
+                "client_id": {
+                    "title": "Client ID",
+                    "type": "string"
+                },
+                "#client_secret": {
+                    "title": "Client Secret",
+                    "type": "string"
+                }
+            }          
+        }
     }
 }
