@@ -29,7 +29,7 @@ Specify the endpoints to download: `stats` or `private-deals` or both of them. Y
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| credentials | disctionary | R2B2 API credentials |
+| credentials | dictionary | R2B2 API credentials |
 | date_type | string | fixed or interval or backfill |
 | date_interval | int | number of days before today |
 | include_today | boolean | include today's data for interval date type   |
