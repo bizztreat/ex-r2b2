@@ -127,7 +127,7 @@ def extract(date_from, date_to, logger, conf, args, endpoint):
     )
 
     # OAuth - get acces token
-    url_oauth = "https://login.trackad.cz/api/oauth2/token"
+    url_oauth = "https://aym.r2b2.cz/api/oauth2/access-token"
 
     payload = "grant_type=client_credentials&client_id={0}&client_secret={1}&scope={2}".format(
         conf["credentials"]["client_id"], conf["credentials"]["#client_secret"], SCOPES[endpoint])
