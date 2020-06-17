@@ -40,7 +40,8 @@ DIMENSIONS = {
     "private-deals":[
         "day", 
         "website", 
-        "deal", 
+        "deal_name",
+        "deal_id",
         "placement", 
         "advertiser", 
         "buyer"
@@ -63,7 +64,7 @@ def main():
 
     # Logger
     basicConfig(
-        level=INFO, format="[{asctime}] {levelname}: {message}", style="{")
+        level=INFO, format="[{asctime}] {levelname}: {message}", style="{", stream=sys.stdout)
     logger = getLogger(__name__)
     logger.setLevel(args.loglevel)
 
@@ -76,7 +77,7 @@ def main():
 
     with open(config_path, encoding="utf-8") as conf_file:
         conf = json.load(conf_file)["parameters"]
-    
+
     # Get datetime from config
     ## fixed
     if conf["date_type"] == "fixed":
@@ -164,51 +165,54 @@ def extract(date_from, date_to, logger, conf, args, endpoint):
         "POST", url, data=json.dumps(stats_conf), headers=headers)
 
     try:
-        resp = response.json()
+        stats = response.json()
     except json.decoder.JSONDecodeError as err:
         logger.critical("Response from server was invalid JSON (%s)", err)
         logger.critical(response.text)
         sys.exit(255)
 
-    if ("status" or "payload") not in resp.keys():
-        logger.error("Unexpected response \n keys: %s", resp.keys())
+    if ("status" or "payload") not in stats.keys():
+        logger.error(response.text)
+        logger.error("Unexpected response \n keys: %s", stats.keys())
         sys.exit(255)
 
-    if not resp["status"] == "ok":
-        logger.error("Unexpected response status: %s", resp["status"])
+    if not stats["status"] == "ok":
+        logger.error(response.text)
+        logger.error("Unexpected response status: %s", stats["status"])
+        if "payload" in stats and "message" in stats["payload"]:
+            logger.error(stats["payload"]["message"])
         sys.exit(255)
 
     # main data
-    data = resp["payload"]
+    data = stats["payload"]
     if not data:
-        logger.info("No %s data found, nothing to export", endpoint)
-
-    else:
+        logger.warning("Endpoint %s returned no data", endpoint)
+        return
 
     # add corresponding date and time from config
-        for row in data:
-            row["date_from"] = stats_conf["from"]
-            row["date_to"] = stats_conf["to"]
+    for row in data:
+        row["date_from"] = stats_conf["from"]
+        row["date_to"] = stats_conf["to"]
 
     # Save output
-        output_path = args.outpath
-        os.makedirs(output_path, exist_ok=True)
+    output_path = args.outpath
+    os.makedirs(output_path, exist_ok=True)
 
-        output_fname = os.path.join(output_path, "{}.csv".format(endpoint))
+    output_fname = os.path.join(output_path, "{}.csv".format(endpoint))
 
-        logger.info("Exporting %s to '%s'", endpoint, output_fname)
+    logger.info("Exporting %s to '%s'", endpoint, output_fname)
 
-        if os.path.exists(output_fname):
-            appending = True
-        else:
-            appending = False
+    if os.path.exists(output_fname):
+        appending = True
+    else:
+        appending = False
 
-        with open(output_fname, "a" if appending else "w", encoding="utf-8") as out_file:
-            writer = csv.DictWriter(
-                out_file, fieldnames=data[0].keys(), dialect=csv.unix_dialect)
-            if not appending:
-                writer.writeheader()
-            writer.writerows(data)
+    with open(output_fname, "a" if appending else "w", encoding="utf-8") as out_file:
+        writer = csv.DictWriter(
+            out_file, fieldnames=data[0].keys(), dialect=csv.unix_dialect)
+        if not appending:
+            writer.writeheader()
+        writer.writerows(data)
 
 if __name__ == "__main__":
     main()
