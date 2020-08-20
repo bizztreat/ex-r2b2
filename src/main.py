@@ -169,19 +169,19 @@ def extract(date_from, date_to, logger, conf, args, endpoint):
     except json.decoder.JSONDecodeError as err:
         logger.critical("Response from server was invalid JSON (%s)", err)
         logger.critical(response.text)
-        sys.exit(255)
+        sys.exit(1)
 
     if ("status" or "payload") not in stats.keys():
         logger.error(response.text)
         logger.error("Unexpected response \n keys: %s", stats.keys())
-        sys.exit(255)
+        sys.exit(1)
 
     if not stats["status"] == "ok":
         logger.error(response.text)
         logger.error("Unexpected response status: %s", stats["status"])
         if "payload" in stats and "message" in stats["payload"]:
             logger.error(stats["payload"]["message"])
-        sys.exit(255)
+        sys.exit(1)
 
     # main data
     data = stats["payload"]
