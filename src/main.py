@@ -19,6 +19,7 @@ import json
 from logging import getLogger, basicConfig, INFO
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
+from time import sleep
 import requests
 
 ENDPOINTS = {
@@ -181,6 +182,10 @@ def extract(date_from, date_to, logger, conf, args, endpoint):
         logger.error("Unexpected response status: %s", stats["status"])
         if "payload" in stats and "message" in stats["payload"]:
             logger.error(stats["payload"]["message"])
+            if stats["payload"]["message"] == "messages:oauthAccessTokenWasNotFound" or stats["payload"]["errorType"] == "access_denied":
+                logger.info("This is a known R2B2 API Bug, will retry in 10 seconds")
+                sleep(10)
+                return extract(date_from, date_to, logger, conf, args, endpoint)
         sys.exit(1)
 
     # main data
