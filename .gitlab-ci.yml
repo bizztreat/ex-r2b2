@@ -22,6 +22,6 @@ deploy-component:
     - pwd
     - ls -la
     - export
-    - ./deploy.sh
+    - ./deploy-gitlab.sh
   only:
     - tags
